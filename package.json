@@ -1,0 +1,16 @@
+{
+  "name": "water-drop-game",
+  "version": "1.0.0",
+  "description": "Catch the good drops, avoid the bad ones! Charity: water game.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node -e \"process.exit(0)\"",
+    "lint": "node -e \"process.exit(0)\""
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

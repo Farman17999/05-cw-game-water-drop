@@ -3,21 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Drop Game</title>
+    <title>Water Drop Game - charity: water</title>
+    <meta name="description" content="Catch clean water drops and yellow jerry cans, avoid contaminated drops to bring clean water to communities in need!">
+    <meta property="og:title" content="Water Drop Game - charity: water">
+    <meta property="og:description" content="Catch clean water drops and yellow jerry cans, avoid contaminated drops to bring clean water to communities in need!">
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="game-wrapper">
-        <h1 class="game-title">Water Drop</h1>
-        <p class="game-tagline">Catch the good drops, avoid the bad ones!</p>
-        <div class="score-panel">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div class="timer">Time: <span id="time">30</span>s</div>
-            <button id="start-btn">Start Game</button>
+        <!-- charity: water Branding & Header -->
+        <header class="game-header">
+            <div class="brand-bar">
+                <img src="img/cw_logo-horizontal.png" alt="charity: water logo" class="brand-logo" onerror="this.src='img/cw_logo.png'">
+            </div>
+            <h1 class="game-title">Water Drop Game</h1>
+            <p class="game-tagline">Catch clean drops and iconic yellow jerry cans. Avoid murky drops!</p>
+            
+            <!-- Quick Rules & Point Legend -->
+            <div class="game-legend">
+                <div class="legend-item"><span class="legend-badge drop-badge">💧</span> Clean Drop: <strong>+1 pt</strong></div>
+                <div class="legend-item"><span class="legend-badge can-badge">🛢️</span> Jerry Can: <strong>+5 pts</strong></div>
+                <div class="legend-item"><span class="legend-badge bad-badge">☣️</span> Murky Drop: <strong>-2 pts</strong></div>
+                <div class="legend-item target-item"><span class="legend-badge target-badge">🎯</span> Goal: <strong>20+ pts in 30s</strong></div>
+            </div>
+        </header>
+
+        <!-- Score & Control Panel -->
+        <div class="score-panel" id="score-panel">
+            <div class="stat-box">
+                <span class="stat-label">Score</span>
+                <span class="stat-value score-text" id="score">0</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">Time Remaining</span>
+                <span class="stat-value timer-text"><span id="time">30</span>s</span>
+            </div>
+
+            <div class="stat-box">
+                <span class="stat-label">High Score</span>
+                <span class="stat-value high-score-text" id="high-score">0</span>
+            </div>
+
+            <div class="controls-box">
+                <button id="start-btn" class="game-btn start-btn" aria-label="Start Game">Start Game</button>
+                <button id="reset-btn" class="game-btn reset-btn" aria-label="Reset Game">Reset</button>
+                <button id="sound-btn" class="game-btn sound-btn" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+            </div>
         </div>
         
-        <div id="game-container">
+        <!-- Main Game Area -->
+        <div id="game-container" tabindex="0" role="region" aria-label="Water Drop Play Area">
+            <!-- Background Water Waves -->
+            <div class="water-surface"></div>
+
+            <!-- Start / Welcome Overlay -->
+            <div id="welcome-overlay" class="game-overlay">
+                <div class="overlay-card">
+                    <img src="img/water-can-transparent.png" alt="charity: water jerry can" class="overlay-can-icon">
+                    <h2 class="overlay-title">Ready to bring clean water?</h2>
+                    <p class="overlay-text">
+                        Tap or click falling clean drops and bonus jerry cans before they hit the ground.
+                        Avoid contaminated drops! Reach <strong>20 points</strong> in 30 seconds to win.
+                    </p>
+                    <button id="overlay-start-btn" class="game-btn primary-start-btn">Start Playing</button>
+                </div>
+            </div>
+
+            <!-- Game Over / Victory Modal Overlay -->
+            <div id="game-over-modal" class="game-overlay hidden">
+                <div class="overlay-card modal-card" id="modal-card">
+                    <div id="modal-icon" class="modal-emoji">🏆</div>
+                    <h2 id="modal-title" class="overlay-title">Game Over!</h2>
+                    <div class="modal-score-summary">
+                        <span class="summary-label">Final Score:</span>
+                        <span id="final-score" class="summary-number">0</span>
+                    </div>
+                    <p id="modal-message" class="modal-description">You did great!</p>
+                    <div class="modal-impact-note" id="modal-impact-note">
+                        💧 <strong>Did you know?</strong> 703 million people lack basic access to clean water. Every action builds awareness!
+                    </div>
+                    <div class="modal-actions">
+                        <button id="play-again-btn" class="game-btn primary-start-btn">Play Again</button>
+                        <button id="modal-reset-btn" class="game-btn reset-btn">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confetti Container -->
+            <div id="confetti-container" class="confetti-container" aria-hidden="true"></div>
         </div>
+
+        <!-- Charity: water Impact Footer -->
+        <footer class="game-footer">
+            <p>100% of public donations fund clean water projects. Clean water changes everything.</p>
+        </footer>
     </div>
     
     <script src="script.js"></script>

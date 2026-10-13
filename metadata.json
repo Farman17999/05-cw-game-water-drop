@@ -1,0 +1,8 @@
+{
+  "name": "Water Drop Game",
+  "description": "Catch the good drops, avoid the bad ones! Charity: water game.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
