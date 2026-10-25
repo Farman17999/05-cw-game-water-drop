@@ -4,40 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Drop Game - charity: water</title>
-    <meta name="description" content="Catch clean water drops and yellow jerry cans, avoid contaminated drops to bring clean water to communities in need!">
+    <meta name="description" content="Catch the good drops, avoid the bad ones! Charity: water game.">
     <meta property="og:title" content="Water Drop Game - charity: water">
-    <meta property="og:description" content="Catch clean water drops and yellow jerry cans, avoid contaminated drops to bring clean water to communities in need!">
+    <meta property="og:description" content="Catch the good drops, avoid the bad ones! Charity: water game.">
     <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts: Montserrat matches charity: water's signature Proxima Nova typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="game-wrapper">
         <!-- charity: water Branding & Header -->
         <header class="game-header">
             <div class="brand-bar">
-                <img src="img/cw_logo-horizontal.png" alt="charity: water logo" class="brand-logo" onerror="this.src='img/cw_logo.png'">
+                <img src="img/cw_logo-horizontal.png" alt="charity: water" class="brand-logo" onerror="this.src='img/cw_logo.png'">
             </div>
             <h1 class="game-title">Water Drop Game</h1>
-            <p class="game-tagline">Catch clean drops and iconic yellow jerry cans. Avoid murky drops!</p>
+            <p class="game-tagline">Tap clean water drops & iconic yellow jerry cans. Avoid murky contaminants!</p>
             
-            <!-- Quick Rules & Point Legend -->
+            <!-- Difficulty Selector Bar -->
+            <div class="difficulty-control-bar" role="group" aria-label="Game Difficulty Modes">
+                <span class="difficulty-label">Difficulty:</span>
+                <div class="difficulty-segmented" id="difficulty-selector">
+                    <button type="button" class="diff-btn" data-diff="easy" id="diff-easy-btn" aria-pressed="false">
+                        <span class="diff-name">Easy</span>
+                        <span class="diff-meta">15 pts · 35s</span>
+                    </button>
+                    <button type="button" class="diff-btn active" data-diff="normal" id="diff-normal-btn" aria-pressed="true">
+                        <span class="diff-name">Normal</span>
+                        <span class="diff-meta">20 pts · 30s</span>
+                    </button>
+                    <button type="button" class="diff-btn" data-diff="hard" id="diff-hard-btn" aria-pressed="false">
+                        <span class="diff-name">Hard</span>
+                        <span class="diff-meta">30 pts · 25s</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Point & Goal Legend -->
             <div class="game-legend">
                 <div class="legend-item"><span class="legend-badge drop-badge">💧</span> Clean Drop: <strong>+1 pt</strong></div>
                 <div class="legend-item"><span class="legend-badge can-badge">🛢️</span> Jerry Can: <strong>+5 pts</strong></div>
                 <div class="legend-item"><span class="legend-badge bad-badge">☣️</span> Murky Drop: <strong>-2 pts</strong></div>
-                <div class="legend-item target-item"><span class="legend-badge target-badge">🎯</span> Goal: <strong>20+ pts in 30s</strong></div>
+                <div class="legend-item target-item" id="legend-goal-item"><span class="legend-badge target-badge">🎯</span> Goal: <strong id="legend-goal-text">20+ pts in 30s</strong></div>
             </div>
         </header>
 
-        <!-- Score & Control Panel -->
+        <!-- Score & Control Panel / HUD -->
         <div class="score-panel" id="score-panel">
             <div class="stat-box">
                 <span class="stat-label">Score</span>
-                <span class="stat-value score-text" id="score">0</span>
+                <div class="stat-value-group">
+                    <span class="stat-value score-text" id="score">0</span>
+                    <span class="stat-target-sub" id="target-sub">/ 20</span>
+                </div>
             </div>
-            
+
             <div class="stat-box">
                 <span class="stat-label">Time Remaining</span>
                 <span class="stat-value timer-text"><span id="time">30</span>s</span>
@@ -48,28 +71,72 @@
                 <span class="stat-value high-score-text" id="high-score">0</span>
             </div>
 
+            <div class="stat-box milestone-status-box" id="milestone-status-box">
+                <span class="stat-label">Next Milestone</span>
+                <span class="stat-milestone-text" id="next-milestone-label">5 pts: First Wave</span>
+            </div>
+
             <div class="controls-box">
                 <button id="start-btn" class="game-btn start-btn" aria-label="Start Game">Start Game</button>
                 <button id="reset-btn" class="game-btn reset-btn" aria-label="Reset Game">Reset</button>
-                <button id="sound-btn" class="game-btn sound-btn" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+                <button id="sound-btn" class="game-btn sound-btn" title="Toggle Sound (Mute/Unmute)" aria-label="Toggle Sound">🔊</button>
             </div>
         </div>
         
         <!-- Main Game Area -->
         <div id="game-container" tabindex="0" role="region" aria-label="Water Drop Play Area">
-            <!-- Background Water Waves -->
-            <div class="water-surface"></div>
+            <!-- Background Water Reservoir Gauge (Reacts as player collects drops) -->
+            <div class="reservoir-meter" aria-hidden="true">
+                <div class="reservoir-fill" id="reservoir-fill"></div>
+                <div class="reservoir-level-tag" id="reservoir-level-tag">0%</div>
+            </div>
+
+            <!-- Animated Milestone Toast Banner in DOM -->
+            <div id="milestone-banner" class="milestone-banner hidden" role="status" aria-live="polite">
+                <div class="milestone-content">
+                    <span class="milestone-icon" id="milestone-icon">🌟</span>
+                    <div class="milestone-text-group">
+                        <span class="milestone-heading" id="milestone-heading">Milestone Reached!</span>
+                        <span class="milestone-message" id="milestone-message">Halfway there! 10 points!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Background Water Surface & Wave -->
+            <div class="water-surface" id="water-surface">
+                <div class="water-wave-anim"></div>
+            </div>
 
             <!-- Start / Welcome Overlay -->
             <div id="welcome-overlay" class="game-overlay">
                 <div class="overlay-card">
                     <img src="img/water-can-transparent.png" alt="charity: water jerry can" class="overlay-can-icon">
-                    <h2 class="overlay-title">Ready to bring clean water?</h2>
+                    <h2 class="overlay-title">Bring Clean Water to Life</h2>
                     <p class="overlay-text">
-                        Tap or click falling clean drops and bonus jerry cans before they hit the ground.
-                        Avoid contaminated drops! Reach <strong>20 points</strong> in 30 seconds to win.
+                        Tap or click clean drops and iconic yellow jerry cans before they fall.
+                        Avoid murky water! Choose your challenge level to begin:
                     </p>
-                    <button id="overlay-start-btn" class="game-btn primary-start-btn">Start Playing</button>
+
+                    <!-- Difficulty Cards inside Welcome Overlay -->
+                    <div class="overlay-diff-cards">
+                        <div class="diff-card" data-diff="easy" id="card-diff-easy">
+                            <div class="diff-card-badge">Easy</div>
+                            <div class="diff-card-goal">15 Points</div>
+                            <div class="diff-card-detail">35 seconds · Gentle pace</div>
+                        </div>
+                        <div class="diff-card active" data-diff="normal" id="card-diff-normal">
+                            <div class="diff-card-badge">Normal</div>
+                            <div class="diff-card-goal">20 Points</div>
+                            <div class="diff-card-detail">30 seconds · Balanced</div>
+                        </div>
+                        <div class="diff-card" data-diff="hard" id="card-diff-hard">
+                            <div class="diff-card-badge">Hard</div>
+                            <div class="diff-card-goal">30 Points</div>
+                            <div class="diff-card-detail">25 seconds · Fast drops!</div>
+                        </div>
+                    </div>
+
+                    <button id="overlay-start-btn" class="game-btn primary-start-btn">Start Game</button>
                 </div>
             </div>
 
@@ -78,17 +145,39 @@
                 <div class="overlay-card modal-card" id="modal-card">
                     <div id="modal-icon" class="modal-emoji">🏆</div>
                     <h2 id="modal-title" class="overlay-title">Game Over!</h2>
+                    
                     <div class="modal-score-summary">
-                        <span class="summary-label">Final Score:</span>
-                        <span id="final-score" class="summary-number">0</span>
+                        <div class="summary-stat">
+                            <span class="summary-label">Final Score</span>
+                            <span id="final-score" class="summary-number">0</span>
+                        </div>
+                        <div class="summary-stat-divider" aria-hidden="true"></div>
+                        <div class="summary-stat">
+                            <span class="summary-label">Difficulty</span>
+                            <span id="final-difficulty" class="summary-subtext">Normal</span>
+                        </div>
+                        <div class="summary-stat-divider" aria-hidden="true"></div>
+                        <div class="summary-stat">
+                            <span class="summary-label">Goal Target</span>
+                            <span id="final-target" class="summary-subtext">20 pts</span>
+                        </div>
                     </div>
+
                     <p id="modal-message" class="modal-description">You did great!</p>
-                    <div class="modal-impact-note" id="modal-impact-note">
-                        💧 <strong>Did you know?</strong> 703 million people lack basic access to clean water. Every action builds awareness!
+                    
+                    <!-- Milestones hit list -->
+                    <div class="modal-milestones-recap" id="modal-milestones-recap">
+                        <span class="recap-title">Milestones Achieved This Round:</span>
+                        <div class="recap-tags" id="recap-tags"></div>
                     </div>
+
+                    <div class="modal-impact-note" id="modal-impact-note">
+                        💧 <strong>Did you know?</strong> 703 million people lack basic access to clean water. Every tap raises awareness for clean water projects worldwide.
+                    </div>
+
                     <div class="modal-actions">
                         <button id="play-again-btn" class="game-btn primary-start-btn">Play Again</button>
-                        <button id="modal-reset-btn" class="game-btn reset-btn">Reset</button>
+                        <button id="modal-reset-btn" class="game-btn reset-btn">Change Level</button>
                     </div>
                 </div>
             </div>
@@ -97,9 +186,73 @@
             <div id="confetti-container" class="confetti-container" aria-hidden="true"></div>
         </div>
 
-        <!-- Charity: water Impact Footer -->
+        <!-- charity: water Official Mission & Donation Section (Brand Guidelines Compliant) -->
+        <section class="charity-impact-section" aria-label="About charity: water">
+            <div class="impact-inner">
+                <div class="impact-header-row">
+                    <div class="impact-badge">
+                        <span class="impact-badge-dot"></span>
+                        100% Model
+                    </div>
+                    <h2 class="impact-headline">Clean water changes everything.</h2>
+                    <p class="impact-subhead">
+                        When a community gets clean water, health improves, girls can attend school, women reclaim hours every day, and local economies flourish.
+                    </p>
+                </div>
+
+                <!-- 3 Pillars of charity: water -->
+                <div class="impact-pillars">
+                    <div class="pillar-card">
+                        <div class="pillar-icon">💰</div>
+                        <h3 class="pillar-title">100% Direct Impact</h3>
+                        <p class="pillar-text">Private donors cover our operating costs so 100% of every public dollar directly funds water projects.</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon">📍</div>
+                        <h3 class="pillar-title">Every Project on a Map</h3>
+                        <p class="pillar-text">We prove every single project using GPS coordinates, photos, and live sensor data so you see your impact.</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon">🤝</div>
+                        <h3 class="pillar-title">Local Partners</h3>
+                        <p class="pillar-text">We partner with experienced local leaders in 29 developing countries to build sustainable, lasting water solutions.</p>
+                    </div>
+                </div>
+
+                <!-- Call-to-Action Buttons for charity: water -->
+                <div class="impact-actions">
+                    <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener noreferrer" class="cw-action-btn cw-donate-btn">
+                        <span>Donate to charity: water</span>
+                        <svg class="cw-external-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                    <a href="https://www.charitywater.org/the-spring" target="_blank" rel="noopener noreferrer" class="cw-action-btn cw-spring-btn">
+                        <span>Join The Spring (Monthly Giving)</span>
+                        <svg class="cw-external-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                    <a href="https://www.charitywater.org/why-water" target="_blank" rel="noopener noreferrer" class="cw-action-btn cw-learn-btn">
+                        <span>Why Water?</span>
+                        <svg class="cw-external-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Official charity: water Footer -->
         <footer class="game-footer">
-            <p>100% of public donations fund clean water projects. Clean water changes everything.</p>
+            <div class="footer-links">
+                <a href="https://www.charitywater.org" target="_blank" rel="noopener noreferrer" class="footer-link">charitywater.org</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener noreferrer" class="footer-link">Donate</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="https://www.charitywater.org/about" target="_blank" rel="noopener noreferrer" class="footer-link">About Us</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="https://www.charitywater.org/global-water-crisis" target="_blank" rel="noopener noreferrer" class="footer-link">Global Water Crisis</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="https://www.charitywater.org/stories" target="_blank" rel="noopener noreferrer" class="footer-link">Stories</a>
+            </div>
+            <p class="footer-disclaimer">
+                Charity: water is a 501(c)(3) non-profit organization bringing clean and safe drinking water to people around the world.
+            </p>
         </footer>
     </div>
     
